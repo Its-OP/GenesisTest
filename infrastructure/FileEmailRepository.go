@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const storageFile = "emails.json"
+const storageFile = "data/emails.json"
 
 type FileEmailRepository struct {
 	Emails hashset.Set
