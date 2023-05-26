@@ -1,7 +1,9 @@
 package main
 
 import (
+	"btcRate/application"
 	"btcRate/docs"
+	"btcRate/infrastructure"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -13,6 +15,9 @@ import (
 // @description This is a sample server for a BTC to UAH rate application.
 // @host localhost:8080
 // @BasePath /api
+
+var bitcoinClient = infrastructure.NewBinanceClient()
+var BTCUAHService = application.NewCoinService(bitcoinClient, "UAH")
 
 func main() {
 	r := gin.Default()
@@ -37,11 +42,9 @@ func main() {
 // @Failure 400 {object} string "Invalid status value"
 // @Router /rate [get]
 func GetRate(c *gin.Context) {
-	// TODO: Add logic to fetch BTC to UAH rate and return it
+	price := BTCUAHService.GetCurrentRate("UAH", "BTC")
 
-	c.JSON(http.StatusOK, gin.H{
-		"rate": 0, // Replace this with your actual rate
-	})
+	c.IndentedJSON(http.StatusOK, price)
 }
 
 // @Summary Subscribe email to get BTC rate
