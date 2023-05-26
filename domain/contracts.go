@@ -16,3 +16,7 @@ type IEmailRepository interface {
 	AddEmail(email string)
 	Save()
 }
+
+type IEmailClient interface {
+	Send(recipients []string, htmlContent string)
+}
