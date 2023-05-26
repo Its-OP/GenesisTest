@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type ICoinService interface {
-	getCurrentPrice(currency string) Price
+	GetCurrentRate(currency string, coin string) *Price
 	subscribeUser(email string)
 	sendEmails()
 }
