@@ -26,7 +26,7 @@ func NewBinanceClient() *BinanceClient {
 	return binanceClient
 }
 
-func (binanceClient *BinanceClient) GetPrice(currency string, coin string) (float64, time.Time) {
+func (binanceClient *BinanceClient) GetRate(currency string, coin string) (float64, time.Time) {
 	path := fmt.Sprintf("ticker/price?symbol=%s%s", coin, currency)
 	url := binanceClient.baseURL.ResolveReference(&url.URL{Path: path})
 
