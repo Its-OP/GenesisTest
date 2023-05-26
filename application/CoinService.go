@@ -3,9 +3,16 @@ package application
 import "btcRate/domain"
 
 type CoinService struct {
-	coinClient domain.ICoinClient
-	currency   string
-	coint      string
+	coinClient      domain.ICoinClient
+	emailRepository domain.IEmailRepository
+	currency        string
+	coin            string
+}
+
+func NewCoinService(client domain.ICoinClient, emailRepository domain.IEmailRepository, currency string) *CoinService {
+	service := &CoinService{coinClient: client, emailRepository: emailRepository, currency: currency}
+
+	return service
 }
 
 func (coinService *CoinService) GetCurrentRate(currency string, coin string) *domain.Price {
@@ -18,8 +25,7 @@ func (coinService *CoinService) GetCurrentRate(currency string, coin string) *do
 	}
 }
 
-func NewCoinService(client domain.ICoinClient, currency string) *CoinService {
-	service := &CoinService{coinClient: client, currency: currency}
-
-	return service
+func (coinService *CoinService) Subscribe(email string) {
+	coinService.emailRepository.AddEmail(email)
+	coinService.emailRepository.Save()
 }

@@ -15,14 +15,12 @@ type FileEmailRepository struct {
 func NewFileEmailRepository() *FileEmailRepository {
 	emails := *hashset.New()
 
-	if _, err := os.Stat(storageFile); !os.IsNotExist(err) {
+	if fileExists() {
 		data, _ := os.ReadFile(storageFile)
-
 		emails.FromJSON(data)
 	}
 
 	repo := FileEmailRepository{Emails: emails}
-
 	return &repo
 }
 
@@ -38,5 +36,18 @@ func (repo *FileEmailRepository) AddEmail(email string) {
 func (repo *FileEmailRepository) Save() {
 	data, _ := json.Marshal(repo.Emails)
 
+	if !fileExists() {
+		os.Create(storageFile)
+	}
+
 	os.WriteFile(storageFile, data, 0644)
+}
+
+func fileExists() bool {
+	info, err := os.Stat(storageFile)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return !info.IsDir()
 }
