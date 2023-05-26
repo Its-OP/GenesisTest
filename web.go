@@ -8,6 +8,7 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"regexp"
 )
 
 // @title GSES2 BTC application API
@@ -17,7 +18,8 @@ import (
 // @BasePath /api
 
 var bitcoinClient = infrastructure.NewBinanceClient()
-var BTCUAHService = application.NewCoinService(bitcoinClient, "UAH")
+var emailRepository = infrastructure.NewFileEmailRepository()
+var BTCUAHService = application.NewCoinService(bitcoinClient, emailRepository, "UAH")
 
 func main() {
 	r := gin.Default()
@@ -67,6 +69,15 @@ func Subscribe(c *gin.Context) {
 		return
 	}
 
+	if !validateEmail(&email) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Email is invalid",
+		})
+		return
+	}
+
+	BTCUAHService.Subscribe(email)
+
 	// TODO: Check if email is already in the database
 	// If it is, return a 409 status code
 
@@ -87,4 +98,11 @@ func SendEmails(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "E-mails sent",
 	})
+}
+
+func validateEmail(email *string) bool {
+	regexString := "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+	match, _ := regexp.Match(regexString, []byte(*email))
+
+	return match
 }
