@@ -30,14 +30,12 @@ func (binanceClient *BinanceClient) GetRate(currency string, coin string) (float
 	path := fmt.Sprintf("/ticker/price?symbol=%s%s", coin, currency)
 	url := binanceClient.baseURL.String() + path
 
-	resp, err := binanceClient.client.Get(url)
+	resp, _ := binanceClient.client.Get(url)
 	timestamp := time.Now()
 
-	if err != nil {
-		fmt.Println("Err is", err)
-	}
-
 	respBody, _ := io.ReadAll(resp.Body)
+
+	// TODO add error handling
 
 	var result PriceResponse
 	if err := json.Unmarshal(respBody, &result); err != nil {
