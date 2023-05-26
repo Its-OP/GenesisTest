@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"github.com/emirpasic/gods/sets/hashset"
-	"github.com/goccy/go-json"
 	"os"
 )
 
@@ -34,7 +33,7 @@ func (repo *FileEmailRepository) AddEmail(email string) {
 }
 
 func (repo *FileEmailRepository) Save() {
-	data, _ := json.Marshal(repo.Emails)
+	data, _ := repo.Emails.MarshalJSON()
 
 	if !fileExists() {
 		os.Create(storageFile)
