@@ -9,5 +9,5 @@ type ICoinService interface {
 }
 
 type ICoinClient interface {
-	getPrice(currency string) (float64, time.Time)
+	GetRate(currency string, coin string) (float64, time.Time)
 }
