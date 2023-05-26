@@ -27,16 +27,15 @@ func NewBinanceClient() *BinanceClient {
 }
 
 func (binanceClient *BinanceClient) GetRate(currency string, coin string) (float64, time.Time) {
-	path := fmt.Sprintf("ticker/price?symbol=%s%s", coin, currency)
-	url := binanceClient.baseURL.ResolveReference(&url.URL{Path: path})
+	path := fmt.Sprintf("/ticker/price?symbol=%s%s", coin, currency)
+	url := binanceClient.baseURL.String() + path
 
-	resp, err := binanceClient.client.Get(url.String())
+	resp, err := binanceClient.client.Get(url)
 	timestamp := time.Now()
 
 	if err != nil {
 		fmt.Println("Err is", err)
 	}
-	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
 
@@ -45,12 +44,12 @@ func (binanceClient *BinanceClient) GetRate(currency string, coin string) (float
 		fmt.Println("Can not unmarshal JSON")
 	}
 
-	price, _ := strconv.ParseFloat(result.price, 10)
+	price, _ := strconv.ParseFloat(result.Price, 10)
 
 	return price, timestamp
 }
 
 type PriceResponse struct {
-	symbol string
-	price  string
+	Symbol string
+	Price  string
 }
