@@ -1,64 +1,65 @@
-swagger: "2.0"
+basePath: /api
+host: localhost:8080
 info:
-  version: "1.0.0"
-  title: "GSES2 BTC application"
-host: "http://localhost:8080"
-basePath: "/api"
-tags:
-  - name: "rate"
-    description: "Отримання поточного курсу BTC до UAH"
-  - name: "subscription"
-    description: "Робота з підпискою"
-schemes:
-  - "http"
+  contact: {}
+  description: This is a sample server for a BTC to UAH rate application.
+  title: GSES2 BTC application API
+  version: 1.0.0
 paths:
   /rate:
     get:
-      tags:
-        - "rate"
-      summary: "Отримати поточний курс BTC до UAH"
-      description: "Запит має повертати поточний курс BTC до UAH використовуючи будь-який third party сервіс з публічним АРІ"
-      operationId: "rate"
+      description: Get the current rate of BTC to UAH using any third-party service
+        with public API
       produces:
-        - "application/json"
+      - application/json
       responses:
         "200":
-          description: "Повертається актуальний курс BTC до UAH"
+          description: Successful operation
           schema:
-            type: "number"
+            type: number
         "400":
-          description: "Invalid status value"
-  /subscribe:
-    post:
+          description: Invalid status value
+          schema:
+            type: string
+      summary: Get current BTC to UAH rate
       tags:
-        - "subscription"
-      summary: "Підписати емейл на отримання поточного курсу"
-      description: "Запит має перевірити, чи немає данної електронної адреси в поточній базі даних (файловій) і, в разі її відсутності, записувати її. Пізніше, за допомогою іншого запиту ми будемо відправляти лист на ті електронні адреси, які будуть в цій базі. "
-      operationId: "subscribe"
-      consumes:
-        - "application/x-www-form-urlencoded"
-      produces:
-        - "application/json"
-      parameters:
-        - name: "email"
-          in: "formData"
-          description: "Електронна адреса, яку потрібно підписати"
-          required: true
-          type: "string"
-      responses:
-        "200":
-          description: "E-mail додано"
-        "409":
-          description: "Повертати, якщо e-mail вже є в базі даних (файловій)"
+      - rate
   /sendEmails:
     post:
-      tags:
-        - "subscription"
-      summary: "Відправити e-mail з поточним курсом на всі підписані електронні пошти."
-      description: "Запит має отримувати актуальний курс BTC до UAH за допомогою third-party сервісу та відправляти його на всі електронні адреси, які були підписані раніше.  "
-      operationId: "sendEmails"
+      description: Send the current BTC to UAH rate to all subscribed emails
       produces:
-        - "application/json"
+      - application/json
       responses:
         "200":
-          description: "E-mailʼи відправлено"
+          description: E-mails sent
+          schema:
+            type: string
+      summary: Send email with BTC rate
+      tags:
+      - subscription
+  /subscribe:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Add an email to the database if it does not exist already
+      parameters:
+      - description: Email to be subscribed
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: E-mail added
+          schema:
+            type: string
+        "409":
+          description: E-mail already exists in the database
+          schema:
+            type: string
+      summary: Subscribe email to get BTC rate
+      tags:
+      - subscription
+swagger: "2.0"
