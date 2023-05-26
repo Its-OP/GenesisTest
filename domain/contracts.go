@@ -11,3 +11,8 @@ type ICoinService interface {
 type ICoinClient interface {
 	GetRate(currency string, coin string) (float64, time.Time)
 }
+
+type IEmailRepository interface {
+	AddEmail(email string)
+	Save()
+}
