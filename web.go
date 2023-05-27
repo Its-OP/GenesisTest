@@ -51,7 +51,7 @@ func main() {
 func GetRate(c *gin.Context) {
 	price := BTCUAHService.GetCurrentRate(currency, coin)
 
-	c.IndentedJSON(http.StatusOK, price)
+	c.IndentedJSON(http.StatusOK, price.Amount)
 }
 
 // @Summary Subscribe email to get BTC rate
@@ -64,8 +64,6 @@ func GetRate(c *gin.Context) {
 // @Failure 409 {object} string "E-mail already exists in the database"
 // @Router /subscribe [post]
 func Subscribe(c *gin.Context) {
-	// TODO: Add logic to subscribe an email to the mailing list
-
 	email := c.PostForm("email")
 	if email == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -82,10 +80,7 @@ func Subscribe(c *gin.Context) {
 	}
 
 	BTCUAHService.Subscribe(email)
-
-	// TODO: Check if email is already in the database
-	// If it is, return a 409 status code
-
+	
 	c.JSON(http.StatusOK, gin.H{
 		"message": "E-mail added",
 	})
