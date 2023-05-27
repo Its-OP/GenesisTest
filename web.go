@@ -3,6 +3,7 @@ package main
 import (
 	"btcRate/application"
 	"btcRate/docs"
+	"btcRate/domain"
 	"btcRate/infrastructure"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -26,8 +27,26 @@ var emailRepository = infrastructure.NewFileEmailRepository()
 var emailClient = infrastructure.NewSendGridEmailClient(os.Getenv("SENDGRID_API_KEY"), os.Getenv("SENDGRID_API_SENDER_NAME"), os.Getenv("SENDGRID_API_SENDER_EMAIL"))
 var BTCUAHService = application.NewCoinService(bitcoinClient, emailClient, emailRepository)
 
+func errorHandlingMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next() // execute the next middleware or handler
+
+		// Check if there was an error
+		if len(c.Errors) > 0 {
+			for _, e := range c.Errors {
+				// Check if the error is a CustomError
+				if _, ok := e.Err.(*domain.EndpointInaccessibleError); ok {
+					// If it is, respond with status code 400
+					c.String(http.StatusBadRequest, e.Error())
+				}
+			}
+		}
+	}
+}
+
 func main() {
 	r := gin.Default()
+	r.Use(errorHandlingMiddleware())
 
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	api := r.Group("/api/v1")
@@ -49,7 +68,12 @@ func main() {
 // @Failure 400 {object} string "Invalid status value"
 // @Router /rate [get]
 func GetRate(c *gin.Context) {
-	price := BTCUAHService.GetCurrentRate(currency, coin)
+	price, err := BTCUAHService.GetCurrentRate(currency, coin)
+
+	if err != nil {
+		c.Error(err)
+		return
+	}
 
 	c.IndentedJSON(http.StatusOK, price.Amount)
 }
@@ -66,24 +90,18 @@ func GetRate(c *gin.Context) {
 func Subscribe(c *gin.Context) {
 	email := c.PostForm("email")
 	if email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Email is required",
-		})
+		c.String(http.StatusBadRequest, "Email is required")
 		return
 	}
 
 	if !validateEmail(&email) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Email is invalid",
-		})
+		c.String(http.StatusBadRequest, "Email is invalid")
 		return
 	}
 
 	BTCUAHService.Subscribe(email)
-	
-	c.JSON(http.StatusOK, gin.H{
-		"message": "E-mail added",
-	})
+
+	c.String(http.StatusOK, "E-mail address added")
 }
 
 // @Summary Send email with BTC rate
@@ -95,9 +113,7 @@ func Subscribe(c *gin.Context) {
 func SendEmails(c *gin.Context) {
 	BTCUAHService.SendRateEmails(currency, coin)
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "E-mails sent",
-	})
+	c.String(http.StatusOK, "E-mails sent")
 }
 
 func validateEmail(email *string) bool {
