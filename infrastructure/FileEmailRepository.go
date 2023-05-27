@@ -32,6 +32,21 @@ func (repo *FileEmailRepository) AddEmail(email string) {
 	repo.Emails.Add(email)
 }
 
+func (repo *FileEmailRepository) GetAll() *[]string {
+	if !fileExists() {
+		return &[]string{}
+	}
+
+	values := repo.Emails.Values()
+
+	emailsArray := make([]string, len(values))
+	for i, value := range values {
+		emailsArray[i] = value.(string)
+	}
+
+	return &emailsArray
+}
+
 func (repo *FileEmailRepository) Save() {
 	data, _ := repo.Emails.MarshalJSON()
 
