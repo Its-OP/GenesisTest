@@ -15,6 +15,8 @@ COPY ./application ./application
 COPY ./domain ./domain
 COPY ./infrastructure ./infrastructure
 COPY ./web ./web
+
+COPY ./docs ./docs
 COPY ./startup.go .
 
 # Build the Go app
