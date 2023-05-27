@@ -39,7 +39,7 @@ func (coinService *CoinService) SendRateEmails(currency string, coin string) {
 	htmlTemplate := `<p><strong>Amount:</strong> %f</p>
 	<p><strong>Currency:</strong> %s<p>
 	<p><strong>Timestamp:</strong> %s<p>`
-	htmlBody := fmt.Sprintf(htmlTemplate, currentPrice.Amount, currentPrice.Currency, currentPrice.Timestamp)
+	htmlBody := fmt.Sprintf(htmlTemplate, currentPrice.Amount, currentPrice.Currency, currentPrice.Timestamp.Format("02-01-06 15:04:05.999 Z0700"))
 
 	print(emails, htmlBody)
 	coinService.emailClient.Send(emails, htmlBody)
