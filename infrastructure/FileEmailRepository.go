@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
 	"os"
+	"path/filepath"
 )
 
-const storageFile = "data/emails.json"
+const storageFile = "./data/emails.json"
 
 type FileEmailRepository struct {
 	Emails hashset.Set
@@ -53,7 +54,7 @@ func (repo *FileEmailRepository) Save() {
 	data, _ := repo.Emails.MarshalJSON()
 
 	if !fileExists() {
-		os.Create(storageFile)
+		createFile(storageFile)
 	}
 
 	os.WriteFile(storageFile, data, 0644)
@@ -66,4 +67,13 @@ func fileExists() bool {
 	}
 
 	return !info.IsDir()
+}
+
+func createFile(filePath string) {
+	dirPath := filepath.Dir(filePath)
+
+	_ = os.MkdirAll(dirPath, 0755)
+	file, _ := os.Create(filePath)
+
+	defer file.Close()
 }
