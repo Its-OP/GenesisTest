@@ -1,4 +1,4 @@
-package main
+package web
 
 //func errorHandlingMiddleware() gin.HandlerFunc {
 //	return func(c *gin.Context) {

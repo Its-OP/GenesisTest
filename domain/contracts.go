@@ -4,8 +4,8 @@ import "time"
 
 type ICoinService interface {
 	GetCurrentRate(currency string, coin string) (*Price, error)
-	Subscribe(email string)
-	SendRateEmails()
+	Subscribe(email string) error
+	SendRateEmails(currency string, coin string)
 }
 
 type ICoinClient interface {
