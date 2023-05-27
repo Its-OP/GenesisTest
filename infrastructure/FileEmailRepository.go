@@ -1,6 +1,8 @@
 package infrastructure
 
 import (
+	"btcRate/domain"
+	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
 	"os"
 )
@@ -23,13 +25,13 @@ func NewFileEmailRepository() *FileEmailRepository {
 	return &repo
 }
 
-func (repo *FileEmailRepository) AddEmail(email string) {
+func (repo *FileEmailRepository) AddEmail(email string) error {
 	if repo.Emails.Contains(email) {
-		// TODO add error handling
-		return
+		return &domain.DataConsistencyError{Message: fmt.Sprintf("Email address '%s' is already present in the database", email)}
 	}
 
 	repo.Emails.Add(email)
+	return nil
 }
 
 func (repo *FileEmailRepository) GetAll() []string {

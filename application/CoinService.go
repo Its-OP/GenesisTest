@@ -17,30 +17,43 @@ func NewCoinService(client domain.ICoinClient, emailClient domain.IEmailClient, 
 	return service
 }
 
-func (coinService *CoinService) GetCurrentRate(currency string, coin string) *domain.Price {
-	rate, time := coinService.coinClient.GetRate(currency, coin)
+func (coinService *CoinService) GetCurrentRate(currency string, coin string) (*domain.Price, error) {
+	rate, time, err := coinService.coinClient.GetRate(currency, coin)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &domain.Price{
 		Amount:    rate,
 		Currency:  currency,
 		Timestamp: time,
-	}
+	}, nil
 }
 
-func (coinService *CoinService) Subscribe(email string) {
-	coinService.emailRepository.AddEmail(email)
+func (coinService *CoinService) Subscribe(email string) error {
+	err := coinService.emailRepository.AddEmail(email)
+	if err != nil {
+		return err
+	}
+
 	coinService.emailRepository.Save()
+	return nil
 }
 
 func (coinService *CoinService) SendRateEmails(currency string, coin string) {
 	emails := coinService.emailRepository.GetAll()
 
-	currentPrice := coinService.GetCurrentRate(currency, coin)
+	currentPrice, err := coinService.GetCurrentRate(currency, coin)
+
+	if err != nil {
+		return
+	}
+
 	htmlTemplate := `<p><strong>Amount:</strong> %f</p>
 	<p><strong>Currency:</strong> %s<p>
 	<p><strong>Timestamp:</strong> %s<p>`
 	htmlBody := fmt.Sprintf(htmlTemplate, currentPrice.Amount, currentPrice.Currency, currentPrice.Timestamp.Format("02-01-06 15:04:05.999 Z0700"))
 
-	print(emails, htmlBody)
 	coinService.emailClient.Send(emails, htmlBody)
 }
