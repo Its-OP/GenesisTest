@@ -23,7 +23,7 @@ const coin = "BTC"
 
 var bitcoinClient = infrastructure.NewBinanceClient()
 var emailRepository = infrastructure.NewFileEmailRepository()
-var emailClient = infrastructure.NewSendGridEmailClient(os.Getenv("SENDGRID_API_KEY"))
+var emailClient = infrastructure.NewSendGridEmailClient(os.Getenv("SENDGRID_API_KEY"), os.Getenv("SENDGRID_API_SENDER_NAME"), os.Getenv("SENDGRID_API_SENDER_EMAIL"))
 var BTCUAHService = application.NewCoinService(bitcoinClient, emailClient, emailRepository)
 
 func main() {

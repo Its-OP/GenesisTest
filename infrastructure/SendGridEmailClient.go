@@ -5,15 +5,16 @@ import (
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"log"
-	"os"
 )
 
 type SendGridEmailClient struct {
-	apiKey string
+	apiKey      string
+	senderName  string
+	senderEmail string
 }
 
-func NewSendGridEmailClient(apiKey string) *SendGridEmailClient {
-	client := &SendGridEmailClient{apiKey: apiKey}
+func NewSendGridEmailClient(apiKey string, senderName string, senderEmail string) *SendGridEmailClient {
+	client := &SendGridEmailClient{apiKey: apiKey, senderName: senderName, senderEmail: senderEmail}
 
 	return client
 }
@@ -23,7 +24,7 @@ func (emailClient *SendGridEmailClient) Send(recipients []string, htmlContent st
 		return
 	}
 
-	from := mail.NewEmail("Genesis School Applicant", "genesis.applicant@example.com")
+	from := mail.NewEmail(emailClient.senderName, emailClient.senderEmail)
 	firstTo := mail.NewEmail("Rate Recipient", recipients[0])
 	subject := "Current BTC to UAH rate"
 	message := mail.NewSingleEmail(from, subject, firstTo, "", htmlContent)
@@ -34,7 +35,7 @@ func (emailClient *SendGridEmailClient) Send(recipients []string, htmlContent st
 		message.AddPersonalizations(personalization)
 	}
 
-	client := sendgrid.NewSendClient(os.Getenv(emailClient.apiKey))
+	client := sendgrid.NewSendClient(emailClient.apiKey)
 
 	response, err := client.Send(message)
 	if err != nil {
