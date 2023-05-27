@@ -13,7 +13,7 @@ type ICoinClient interface {
 }
 
 type IEmailRepository interface {
-	AddEmail(email string)
+	AddEmail(email string) error
 	GetAll() []string
 	Save()
 }

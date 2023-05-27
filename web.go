@@ -38,6 +38,9 @@ func errorHandlingMiddleware() gin.HandlerFunc {
 				if _, ok := e.Err.(*domain.EndpointInaccessibleError); ok {
 					// If it is, respond with status code 400
 					c.String(http.StatusBadRequest, e.Error())
+				} else if _, ok := e.Err.(*domain.DataConsistencyError); ok {
+					// If it is, respond with status code 400
+					c.String(http.StatusConflict, e.Error())
 				}
 			}
 		}
@@ -99,7 +102,11 @@ func Subscribe(c *gin.Context) {
 		return
 	}
 
-	BTCUAHService.Subscribe(email)
+	err := BTCUAHService.Subscribe(email)
+	if err != nil {
+		c.Error(err)
+		return
+	}
 
 	c.String(http.StatusOK, "E-mail address added")
 }
