@@ -42,5 +42,5 @@ func (coinService *CoinService) SendRateEmails(currency string, coin string) {
 	htmlBody := fmt.Sprintf(htmlTemplate, currentPrice.Amount, currentPrice.Currency, currentPrice.Timestamp)
 
 	print(emails, htmlBody)
-	//coinService.emailClient.Send(emails, htmlBody)
+	coinService.emailClient.Send(emails, htmlBody)
 }
