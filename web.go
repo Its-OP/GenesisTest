@@ -18,10 +18,13 @@ import (
 // @host localhost:8080
 // @BasePath /api
 
+const currency = "UAH"
+const coin = "BTC"
+
 var bitcoinClient = infrastructure.NewBinanceClient()
 var emailRepository = infrastructure.NewFileEmailRepository()
 var emailClient = infrastructure.NewSendGridEmailClient(os.Getenv("SENDGRID_API_KEY"))
-var BTCUAHService = application.NewCoinService(bitcoinClient, emailClient, emailRepository, "UAH")
+var BTCUAHService = application.NewCoinService(bitcoinClient, emailClient, emailRepository)
 
 func main() {
 	r := gin.Default()
@@ -46,7 +49,7 @@ func main() {
 // @Failure 400 {object} string "Invalid status value"
 // @Router /rate [get]
 func GetRate(c *gin.Context) {
-	price := BTCUAHService.GetCurrentRate("UAH", "BTC")
+	price := BTCUAHService.GetCurrentRate(currency, coin)
 
 	c.IndentedJSON(http.StatusOK, price)
 }
@@ -95,7 +98,7 @@ func Subscribe(c *gin.Context) {
 // @Success 200 {object} string "E-mails sent"
 // @Router /sendEmails [post]
 func SendEmails(c *gin.Context) {
-	BTCUAHService.SendEmails()
+	BTCUAHService.SendRateEmails(currency, coin)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "E-mails sent",

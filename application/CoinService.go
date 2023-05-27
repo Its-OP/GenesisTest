@@ -9,12 +9,10 @@ type CoinService struct {
 	coinClient      domain.ICoinClient
 	emailClient     domain.IEmailClient
 	emailRepository domain.IEmailRepository
-	currency        string
-	coin            string
 }
 
-func NewCoinService(client domain.ICoinClient, emailClient domain.IEmailClient, emailRepository domain.IEmailRepository, currency string) *CoinService {
-	service := &CoinService{coinClient: client, emailClient: emailClient, emailRepository: emailRepository, currency: currency}
+func NewCoinService(client domain.ICoinClient, emailClient domain.IEmailClient, emailRepository domain.IEmailRepository) *CoinService {
+	service := &CoinService{coinClient: client, emailClient: emailClient, emailRepository: emailRepository}
 
 	return service
 }
@@ -34,14 +32,15 @@ func (coinService *CoinService) Subscribe(email string) {
 	coinService.emailRepository.Save()
 }
 
-func (coinService *CoinService) SendEmails() {
+func (coinService *CoinService) SendRateEmails(currency string, coin string) {
 	emails := coinService.emailRepository.GetAll()
 
-	currentPrice := coinService.GetCurrentRate(coinService.currency, coinService.coin)
+	currentPrice := coinService.GetCurrentRate(currency, coin)
 	htmlTemplate := `<p><strong>Amount:</strong> %f</p>
 	<p><strong>Currency:</strong> %s<p>
 	<p><strong>Timestamp:</strong> %s<p>`
 	htmlBody := fmt.Sprintf(htmlTemplate, currentPrice.Amount, currentPrice.Currency, currentPrice.Timestamp)
 
-	coinService.emailClient.Send(emails, htmlBody)
+	print(emails, htmlBody)
+	//coinService.emailClient.Send(emails, htmlBody)
 }

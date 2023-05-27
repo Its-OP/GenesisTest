@@ -5,7 +5,7 @@ import "time"
 type ICoinService interface {
 	GetCurrentRate(currency string, coin string) *Price
 	Subscribe(email string)
-	SendEmails()
+	SendRateEmails()
 }
 
 type ICoinClient interface {
