@@ -33,4 +33,3 @@ The rate of BTC to UAH is taken from the BTC/UAH traiding pair on Binance. The U
 The project was designed according to the principles of Clean Architercture. In consists of 4 packages - **domain**, which is responsible for the rules of the system, **application**, which stores constructs, that provide logic of the application, **infrastructure**, that consists of adapters for the 3rd-party systems, and **web**, which serves the API.
 
 Speaking about the dependencies, **domain** has none, **application** depends on **domain**, while **infrastructure** and **web** depend on both **domain** and **application**. Furthermore, all the services depend on Contracts, so the concrete implementations can be replaced with ease. Such approach simplifies refactorings of the system, and provides an easy way for testing of each construct.
-# Get Started
