@@ -8,6 +8,7 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"os"
 	"regexp"
 )
 
@@ -19,7 +20,8 @@ import (
 
 var bitcoinClient = infrastructure.NewBinanceClient()
 var emailRepository = infrastructure.NewFileEmailRepository()
-var BTCUAHService = application.NewCoinService(bitcoinClient, emailRepository, "UAH")
+var emailClient = infrastructure.NewSendGridEmailClient(os.Getenv("SENDGRID_API_KEY"))
+var BTCUAHService = application.NewCoinService(bitcoinClient, emailClient, emailRepository, "UAH")
 
 func main() {
 	r := gin.Default()
@@ -93,7 +95,7 @@ func Subscribe(c *gin.Context) {
 // @Success 200 {object} string "E-mails sent"
 // @Router /sendEmails [post]
 func SendEmails(c *gin.Context) {
-	// TODO: Add logic to send the current BTC to UAH rate to all subscribed emails
+	BTCUAHService.SendEmails()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "E-mails sent",
