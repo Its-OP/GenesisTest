@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"btcRate/domain"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,25 +27,25 @@ func NewBinanceClient() *BinanceClient {
 	return binanceClient
 }
 
-func (binanceClient *BinanceClient) GetRate(currency string, coin string) (float64, time.Time) {
+func (binanceClient *BinanceClient) GetRate(currency string, coin string) (float64, time.Time, error) {
 	path := fmt.Sprintf("/ticker/price?symbol=%s%s", coin, currency)
 	url := binanceClient.baseURL.String() + path
 
-	resp, _ := binanceClient.client.Get(url)
+	resp, err := binanceClient.client.Get(url)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return 0.0, time.Time{}, &domain.EndpointInaccessibleError{Message: "Couldn't access the Binance endpoint"}
+	}
+
 	timestamp := time.Now()
 
 	respBody, _ := io.ReadAll(resp.Body)
 
-	// TODO add error handling
-
 	var result PriceResponse
-	if err := json.Unmarshal(respBody, &result); err != nil {
-		fmt.Println("Can not unmarshal JSON")
-	}
+	_ = json.Unmarshal(respBody, &result)
 
 	price, _ := strconv.ParseFloat(result.Price, 10)
 
-	return price, timestamp
+	return price, timestamp, nil
 }
 
 type PriceResponse struct {
