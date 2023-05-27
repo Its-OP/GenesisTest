@@ -32,9 +32,9 @@ func (repo *FileEmailRepository) AddEmail(email string) {
 	repo.Emails.Add(email)
 }
 
-func (repo *FileEmailRepository) GetAll() *[]string {
+func (repo *FileEmailRepository) GetAll() []string {
 	if !fileExists() {
-		return &[]string{}
+		return []string{}
 	}
 
 	values := repo.Emails.Values()
@@ -44,7 +44,7 @@ func (repo *FileEmailRepository) GetAll() *[]string {
 		emailsArray[i] = value.(string)
 	}
 
-	return &emailsArray
+	return emailsArray
 }
 
 func (repo *FileEmailRepository) Save() {
